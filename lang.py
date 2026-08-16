@@ -65,7 +65,11 @@ TR = {
             "HIJAZ jamoasi tez orada siz bilan bog'lanadi, ichaAlloh.\n"
             "E'tiboringiz uchun rahmat! 🕋"
         ),
-        "contact_txt": "📞 *HIJAZ bilan bog'lanish:*\n\nTelefon: +998 91 171 99 00\nTelegram: @hijaz_booking",
+        "contact_txt": "📞 HIJAZ bilan bog'lanish\n\nQuyidagi tugmalar orqali biz bilan tez bog'laning. Savollaringizga jamoamiz javob beradi.",
+        "btn_call": "📞 Qo'ng'iroq",
+        "btn_tg": "✈️ Telegram",
+        "btn_wa": "💬 WhatsApp",
+        "btn_ig": "📷 Instagram",
         "info_txt": (
             "ℹ️ *HIJAZ haqida*\n\n"
             "HIJAZ — Makka va Madinada ishonchli mehmonxona broni va transfer xizmati.\n\n"
@@ -159,7 +163,11 @@ TR = {
             "Команда HIJAZ скоро свяжется с вами, инша Аллах.\n"
             "Спасибо за обращение! 🕋"
         ),
-        "contact_txt": "📞 *Связь с HIJAZ:*\n\nТелефон: +998 91 171 99 00\nTelegram: @hijaz_booking",
+        "contact_txt": "📞 Связь с HIJAZ\n\nСвяжитесь с нами через кнопки ниже. Наша команда ответит на ваши вопросы.",
+        "btn_call": "📞 Позвонить",
+        "btn_tg": "✈️ Telegram",
+        "btn_wa": "💬 WhatsApp",
+        "btn_ig": "📷 Instagram",
         "info_txt": (
             "ℹ️ *О HIJAZ*\n\n"
             "HIJAZ — надёжное бронирование отелей и трансфер в Мекке и Медине.\n\n"
@@ -252,7 +260,11 @@ TR = {
             "The HIJAZ team will contact you soon, in sha Allah.\n"
             "Thank you! 🕋"
         ),
-        "contact_txt": "📞 *Contact HIJAZ:*\n\nPhone: +998 91 171 99 00\nTelegram: @hijaz_booking",
+        "contact_txt": "📞 Contact HIJAZ\n\nReach us quickly via the buttons below. Our team will answer your questions.",
+        "btn_call": "📞 Call",
+        "btn_tg": "✈️ Telegram",
+        "btn_wa": "💬 WhatsApp",
+        "btn_ig": "📷 Instagram",
         "info_txt": (
             "ℹ️ *About HIJAZ*\n\n"
             "HIJAZ — reliable hotel booking and transfer in Makkah and Madinah.\n\n"
@@ -344,7 +356,11 @@ TR = {
             "سيتواصل معك فريق حجاز قريباً إن شاء الله.\n"
             "شكراً لك! 🕋"
         ),
-        "contact_txt": "📞 *تواصل مع حجاز:*\n\nالهاتف: +998 91 171 99 00\nتيليجرام: @hijaz_booking",
+        "contact_txt": "📞 تواصل مع حجاز\n\nتواصل معنا عبر الأزرار أدناه. سيجيب فريقنا على أسئلتك.",
+        "btn_call": "📞 اتصل",
+        "btn_tg": "✈️ تيليجرام",
+        "btn_wa": "💬 واتساب",
+        "btn_ig": "📷 إنستغرام",
         "info_txt": (
             "ℹ️ *عن حجاز*\n\n"
             "حجاز — حجز فنادق موثوق وخدمة نقل في مكة والمدينة.\n\n"
@@ -437,7 +453,11 @@ TR = {
             "HIJAZ ekibi en kısa sürede sizinle iletişime geçecek, inşallah.\n"
             "Teşekkürler! 🕋"
         ),
-        "contact_txt": "📞 *HIJAZ ile iletişim:*\n\nTelefon: +998 91 171 99 00\nTelegram: @hijaz_booking",
+        "contact_txt": "📞 HIJAZ ile iletişim\n\nAşağıdaki butonlarla bize ulaşın. Ekibimiz sorularınızı yanıtlayacak.",
+        "btn_call": "📞 Ara",
+        "btn_tg": "✈️ Telegram",
+        "btn_wa": "💬 WhatsApp",
+        "btn_ig": "📷 Instagram",
         "info_txt": (
             "ℹ️ *HIJAZ Hakkında*\n\n"
             "HIJAZ — Mekke ve Medine'de güvenilir otel rezervasyonu ve transfer.\n\n"
