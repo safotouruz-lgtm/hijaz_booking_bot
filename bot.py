@@ -32,6 +32,13 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "BU_YERGA_TOKEN")   # @BotFather beradi
 ADMIN_GROUP_ID = int(os.getenv("ADMIN_GROUP_ID", "0"))  # HIJAZ guruh ID (masalan -1001234567890)
 REQUESTS_FILE = "requests.json"                          # so'rovlar tarixi
 
+# --- Aloqa ma'lumotlari (o'zingiznikini yozing) ---
+CONTACT_PHONE = "+998911719900"              # qo'ng'iroq uchun (bo'shliqsiz)
+CONTACT_TELEGRAM = "hijaz_booking"           # @siz  (@ belgisisiz)
+CONTACT_WHATSAPP = "998911719900"            # WhatsApp raqami (+ va bo'shliqsiz)
+CONTACT_INSTAGRAM = "hijaz_booking"          # instagram username (@ belgisisiz)
+
+
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
 dp = Dispatcher(storage=MemoryStorage())
@@ -162,7 +169,13 @@ async def change_lang(cb: CallbackQuery):
 @dp.callback_query(F.data == "contact")
 async def show_contact(cb: CallbackQuery):
     lang = UL(cb.from_user.id)
-    await cb.message.answer(t(lang, "contact_txt"))
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=t(lang, "btn_call"), url=f"tel:{CONTACT_PHONE}"),
+         InlineKeyboardButton(text=t(lang, "btn_tg"), url=f"https://t.me/{CONTACT_TELEGRAM}")],
+        [InlineKeyboardButton(text=t(lang, "btn_wa"), url=f"https://wa.me/{CONTACT_WHATSAPP}"),
+         InlineKeyboardButton(text=t(lang, "btn_ig"), url=f"https://instagram.com/{CONTACT_INSTAGRAM}")],
+    ])
+    await cb.message.answer(t(lang, "contact_txt"), reply_markup=kb, parse_mode=None)
     await cb.answer()
 
 @dp.callback_query(F.data == "info")
