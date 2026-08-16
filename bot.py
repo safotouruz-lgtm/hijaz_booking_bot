@@ -169,13 +169,14 @@ async def change_lang(cb: CallbackQuery):
 @dp.callback_query(F.data == "contact")
 async def show_contact(cb: CallbackQuery):
     lang = UL(cb.from_user.id)
+    # Telefon matnda (tel: URL Telegram inline tugmada ishlamaydi)
+    text = t(lang, "contact_txt") + f"\n\n📞 {CONTACT_PHONE}"
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=t(lang, "btn_call"), url=f"tel:{CONTACT_PHONE}"),
-         InlineKeyboardButton(text=t(lang, "btn_tg"), url=f"https://t.me/{CONTACT_TELEGRAM}")],
-        [InlineKeyboardButton(text=t(lang, "btn_wa"), url=f"https://wa.me/{CONTACT_WHATSAPP}"),
-         InlineKeyboardButton(text=t(lang, "btn_ig"), url=f"https://instagram.com/{CONTACT_INSTAGRAM}")],
+        [InlineKeyboardButton(text=t(lang, "btn_tg"), url=f"https://t.me/{CONTACT_TELEGRAM}"),
+         InlineKeyboardButton(text=t(lang, "btn_wa"), url=f"https://wa.me/{CONTACT_WHATSAPP}")],
+        [InlineKeyboardButton(text=t(lang, "btn_ig"), url=f"https://instagram.com/{CONTACT_INSTAGRAM}")],
     ])
-    await cb.message.answer(t(lang, "contact_txt"), reply_markup=kb, parse_mode=None)
+    await cb.message.answer(text, reply_markup=kb, parse_mode=None)
     await cb.answer()
 
 @dp.callback_query(F.data == "info")
