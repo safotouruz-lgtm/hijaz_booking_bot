@@ -51,8 +51,15 @@ class Form(StatesGroup):
     stars = State()
     meal = State()
     guests = State()
+    room_count = State()    # xonalar soni
+    room_type = State()     # necha kishilik xona
     checkin = State()
     checkout = State()
+    # ikkala shahar uchun alohida sanalar (both tanlanganda)
+    mk_checkin = State()
+    mk_checkout = State()
+    md_checkin = State()
+    md_checkout = State()
     budget = State()
     # transfer
     tr_type = State()
@@ -108,6 +115,15 @@ def kb_meal(lang):
 def kb_skip(lang):
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text=t(lang, "skip"), callback_data="skip")]
+    ])
+
+def kb_room_type(lang):
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=t(lang, "rt_single"), callback_data="rt:single"),
+         InlineKeyboardButton(text=t(lang, "rt_double"), callback_data="rt:double")],
+        [InlineKeyboardButton(text=t(lang, "rt_triple"), callback_data="rt:triple"),
+         InlineKeyboardButton(text=t(lang, "rt_quad"), callback_data="rt:quad")],
+        [InlineKeyboardButton(text=t(lang, "rt_mixed"), callback_data="rt:mixed")],
     ])
 
 def kb_transfer_type(lang):
@@ -210,9 +226,34 @@ async def input_guests(message: Message, state: FSMContext):
         await message.answer(t(lang, "invalid_num"))
         return
     await state.update_data(guests=message.text.strip())
-    await state.set_state(Form.checkin)
-    await message.answer(t(lang, "checkin"))
+    await state.set_state(Form.room_count)
+    await message.answer(t(lang, "room_count"))
 
+@dp.message(Form.room_count)
+async def input_room_count(message: Message, state: FSMContext):
+    lang = UL(message.from_user.id)
+    if not message.text.strip().isdigit():
+        await message.answer(t(lang, "invalid_num"))
+        return
+    await state.update_data(room_count=message.text.strip())
+    await state.set_state(Form.room_type)
+    await message.answer(t(lang, "room_type"), reply_markup=kb_room_type(lang))
+
+@dp.callback_query(Form.room_type, F.data.startswith("rt:"))
+async def choose_room_type(cb: CallbackQuery, state: FSMContext):
+    lang = UL(cb.from_user.id)
+    await state.update_data(room_type=cb.data.split(":")[1])
+    data = await state.get_data()
+    await cb.answer()
+    if data.get("city") == "both":
+        # ikkala shahar - alohida sanalar, Makkadan boshlaymiz
+        await state.set_state(Form.mk_checkin)
+        await cb.message.answer(t(lang, "mk_checkin"))
+    else:
+        await state.set_state(Form.checkin)
+        await cb.message.answer(t(lang, "checkin"))
+
+# --- Bitta shahar: oddiy sanalar ---
 @dp.message(Form.checkin)
 async def input_checkin(message: Message, state: FSMContext):
     lang = UL(message.from_user.id)
@@ -224,6 +265,35 @@ async def input_checkin(message: Message, state: FSMContext):
 async def input_checkout(message: Message, state: FSMContext):
     lang = UL(message.from_user.id)
     await state.update_data(checkout=message.text.strip())
+    await state.set_state(Form.budget)
+    await message.answer(t(lang, "budget"), reply_markup=kb_skip(lang))
+
+# --- Ikkala shahar: Makka sanalari, keyin Madina sanalari ---
+@dp.message(Form.mk_checkin)
+async def input_mk_checkin(message: Message, state: FSMContext):
+    lang = UL(message.from_user.id)
+    await state.update_data(mk_checkin=message.text.strip())
+    await state.set_state(Form.mk_checkout)
+    await message.answer(t(lang, "mk_checkout"))
+
+@dp.message(Form.mk_checkout)
+async def input_mk_checkout(message: Message, state: FSMContext):
+    lang = UL(message.from_user.id)
+    await state.update_data(mk_checkout=message.text.strip())
+    await state.set_state(Form.md_checkin)
+    await message.answer(t(lang, "md_checkin"))
+
+@dp.message(Form.md_checkin)
+async def input_md_checkin(message: Message, state: FSMContext):
+    lang = UL(message.from_user.id)
+    await state.update_data(md_checkin=message.text.strip())
+    await state.set_state(Form.md_checkout)
+    await message.answer(t(lang, "md_checkout"))
+
+@dp.message(Form.md_checkout)
+async def input_md_checkout(message: Message, state: FSMContext):
+    lang = UL(message.from_user.id)
+    await state.update_data(md_checkout=message.text.strip())
     await state.set_state(Form.budget)
     await message.answer(t(lang, "budget"), reply_markup=kb_skip(lang))
 
@@ -341,7 +411,17 @@ def build_admin_text(user, data, lang):
         lines.append(f"{t('uz','a_stars')}: {stars if stars=='any' else stars+'⭐'}")
         lines.append(f"{t('uz','a_meal')}: {meal_label('uz', data.get('meal',''))}")
         lines.append(f"{t('uz','a_guests')}: {data.get('guests','')}")
-        lines.append(f"{t('uz','a_dates')}: {data.get('checkin','')} — {data.get('checkout','')}")
+        lines.append(f"{t('uz','a_rooms')}: {data.get('room_count','')}")
+        rt = data.get('room_type', '')
+        rt_names = {'single': t('uz','rt_single'), 'double': t('uz','rt_double'),
+                    'triple': t('uz','rt_triple'), 'quad': t('uz','rt_quad'),
+                    'mixed': t('uz','rt_mixed')}
+        lines.append(f"{t('uz','a_roomtype')}: {rt_names.get(rt, rt)}")
+        if data.get("city") == "both":
+            lines.append(f"{t('uz','a_mk_dates')}: {data.get('mk_checkin','')} — {data.get('mk_checkout','')}")
+            lines.append(f"{t('uz','a_md_dates')}: {data.get('md_checkin','')} — {data.get('md_checkout','')}")
+        else:
+            lines.append(f"{t('uz','a_dates')}: {data.get('checkin','')} — {data.get('checkout','')}")
         lines.append(f"{t('uz','a_budget')}: {data.get('budget','—')}")
     # transfer qismi
     if svc in ("transfer", "both"):
