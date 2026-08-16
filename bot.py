@@ -36,7 +36,7 @@ REQUESTS_FILE = "requests.json"                          # so'rovlar tarixi
 CONTACT_PHONE = "+998911719900"              # qo'ng'iroq uchun (bo'shliqsiz)
 CONTACT_TELEGRAM = "safotour1"           # @siz  (@ belgisisiz)
 CONTACT_WHATSAPP = "998911719900"            # WhatsApp raqami (+ va bo'shliqsiz)
-CONTACT_INSTAGRAM = "hijaz_saudihotel"          # instagram username (@ belgisisiz)
+CONTACT_INSTAGRAM = "hijazsaudi"          # instagram username (@ belgisisiz)
 
 
 logging.basicConfig(level=logging.INFO)
