@@ -333,7 +333,7 @@ def build_admin_text(user, data, lang):
     svc = data.get("service")
     type_str = {"hotel": t("uz","a_hotel"), "transfer": t("uz","a_transfer"),
                 "both": f"{t('uz','a_hotel')} + {t('uz','a_transfer')}"}.get(svc, svc)
-    lines = [f"*{t('uz','a_new')}*", f"{t('uz','a_type')}: {type_str}"]
+    lines = [f"{t('uz','a_new')}", f"{t('uz','a_type')}: {type_str}"]
     # mehmonxona qismi
     if svc in ("hotel", "both"):
         lines.append(f"{t('uz','a_city')}: {city_label('uz', data.get('city',''))}")
@@ -362,7 +362,8 @@ async def send_to_admin(message, data, lang):
         return
     text = build_admin_text(message.from_user, data, lang)
     try:
-        await bot.send_message(ADMIN_GROUP_ID, text)
+        # parse_mode=None -> oddiy matn, maxsus belgilar (* _ [ ]) buzilmaydi
+        await bot.send_message(ADMIN_GROUP_ID, text, parse_mode=None)
     except Exception as e:
         logging.error(f"Admin guruhga yuborishda xato: {e}")
 
