@@ -60,6 +60,27 @@ HOTELS = {
     ],
 }
 
+# --- Transfer avtomobillari (sig'imi bilan). Xohlagancha tahrirlang ---
+CARS = [
+    "Camry",
+    "GMC",
+    "Hiace",
+    "Staria",
+    "Kia Carnival",
+    "Avtobus 20",
+    "Avtobus 50",
+]
+
+# --- Transfer yo'nalishlari. Xohlagancha tahrirlang ---
+ROUTES = [
+    "Jidda aeroport → Madina",
+    "Madina ziyorat",
+    "Madina → Makka",
+    "Makka ziyorat",
+    "Makka → Jidda aeroport",
+    "Madina aeroport → Madina hotel",
+]
+
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN))
@@ -93,9 +114,11 @@ class Form(StatesGroup):
     budget = State()
     # transfer
     tr_type = State()
+    tr_route_choose = State()
     tr_route = State()
     tr_date = State()
     tr_pax = State()
+    tr_car = State()
     # umumiy
     phone = State()
     name = State()
@@ -154,6 +177,31 @@ def hotel_name_by_index(city, idx):
         names = HOTELS.get(city, [])
     if 0 <= idx < len(names):
         return names[idx]
+    return ""
+
+def kb_car(lang):
+    """Avtomobil turi tanlash klaviaturasi (+ Farqi yo'q)."""
+    rows = [[InlineKeyboardButton(text=t(lang, "car_any"), callback_data="car:any")]]
+    for i, name in enumerate(CARS):
+        rows.append([InlineKeyboardButton(text=f"🚗 {name}", callback_data=f"car:{i}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def car_name_by_index(idx):
+    if 0 <= idx < len(CARS):
+        return CARS[idx]
+    return ""
+
+def kb_route(lang):
+    """Yo'nalish tanlash klaviaturasi (+ Boshqa)."""
+    rows = []
+    for i, name in enumerate(ROUTES):
+        rows.append([InlineKeyboardButton(text=f"📍 {name}", callback_data=f"route:{i}")])
+    rows.append([InlineKeyboardButton(text=t(lang, "route_other"), callback_data="route:other")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def route_name_by_index(idx):
+    if 0 <= idx < len(ROUTES):
+        return ROUTES[idx]
     return ""
 
 def kb_meal(lang):
@@ -413,8 +461,23 @@ async def goto_transfer_or_phone(message, state, uid=None):
 async def choose_tr_type(cb: CallbackQuery, state: FSMContext):
     lang = UL(cb.from_user.id)
     await state.update_data(tr_type=cb.data.split(":")[1])
-    await state.set_state(Form.tr_route)
-    await cb.message.answer(t(lang, "transfer_route"))
+    # yo'nalishni tugmalardan tanlaymiz (yoki Boshqa)
+    await state.set_state(Form.tr_route_choose)
+    await cb.message.answer(t(lang, "transfer_route"), reply_markup=kb_route(lang))
+    await cb.answer()
+
+@dp.callback_query(Form.tr_route_choose, F.data.startswith("route:"))
+async def choose_route(cb: CallbackQuery, state: FSMContext):
+    lang = UL(cb.from_user.id)
+    val = cb.data.split(":")[1]
+    if val == "other":
+        # o'zi yozadi
+        await state.set_state(Form.tr_route)
+        await cb.message.answer(t(lang, "transfer_route_manual"))
+    else:
+        await state.update_data(tr_route=route_name_by_index(int(val)))
+        await state.set_state(Form.tr_date)
+        await cb.message.answer(t(lang, "transfer_date"))
     await cb.answer()
 
 @dp.message(Form.tr_route)
@@ -438,11 +501,24 @@ async def input_tr_pax(message: Message, state: FSMContext):
         await message.answer(t(lang, "invalid_num"))
         return
     await state.update_data(tr_pax=message.text.strip())
-    await ask_phone(message, state, lang)
+    # mashina turini so'raymiz (ixtiyoriy)
+    await state.set_state(Form.tr_car)
+    await message.answer(t(lang, "car_q"), reply_markup=kb_car(lang))
+
+@dp.callback_query(Form.tr_car, F.data.startswith("car:"))
+async def choose_car(cb: CallbackQuery, state: FSMContext):
+    lang = UL(cb.from_user.id)
+    val = cb.data.split(":")[1]
+    if val == "any":
+        await state.update_data(tr_car="")
+    else:
+        await state.update_data(tr_car=car_name_by_index(int(val)))
+    await ask_phone(cb.message, state, lang, uid=cb.from_user.id)
+    await cb.answer()
 
 
 # ==================== TELEFON + ISM ====================
-async def ask_phone(message, state, lang):
+async def ask_phone(message, state, lang, uid=None):
     await state.set_state(Form.phone)
     await message.answer(t(lang, "phone"), reply_markup=kb_phone(lang))
 
@@ -539,6 +615,8 @@ def build_customer_summary(data, lang):
         lines.append(f"{t(lang,'a_route')}: {data.get('tr_route','')}")
         lines.append(f"{t(lang,'a_dates')}: {data.get('tr_date','')}")
         lines.append(f"{t(lang,'a_pax')}: {data.get('tr_pax','')}")
+        if data.get('tr_car'):
+            lines.append(f"{t(lang,'a_car')}: {data.get('tr_car')}")
     lines.append(f"{t(lang,'a_name')}: {data.get('name','')}")
     lines.append(f"{t(lang,'a_phone')}: {data.get('phone','')}")
     lines.append("")
@@ -583,6 +661,8 @@ def build_admin_text(user, data, lang, req_no=None):
         lines.append(f"{t('uz','a_route')}: {data.get('tr_route','')}")
         lines.append(f"{t('uz','a_dates')}: {data.get('tr_date','')}")
         lines.append(f"{t('uz','a_pax')}: {data.get('tr_pax','')}")
+        if data.get('tr_car'):
+            lines.append(f"{t('uz','a_car')}: {data.get('tr_car')}")
     # aloqa
     lines.append(f"{t('uz','a_name')}: {data.get('name','')}")
     lines.append(f"{t('uz','a_phone')}: {data.get('phone','')}")
