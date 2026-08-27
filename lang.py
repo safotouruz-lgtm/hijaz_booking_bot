@@ -60,10 +60,20 @@ TR = {
         "phone": "📱 Telefon raqamingiz? (tugmani bosing yoki yozing)",
         "phone_btn": "📱 Raqamni yuborish",
         "name": "Ismingiz?",
+                "confirm_title": "📋 So'rovingizni tekshiring:",
+        "confirm_ask": "Hammasi to'g'rimi?",
+        "btn_confirm": "✅ Tasdiqlash",
+        "btn_cancel": "❌ Bekor qilish",
+        "cancelled": "❌ So'rov bekor qilindi. Qaytadan boshlash uchun menyudan foydalaning.",
+        "c_service": "Xizmat",
+        "c_hotel": "Mehmonxona",
+        "c_transfer": "Transfer",
+        "req_no": "So'rov raqami",
+        "hotel_q": "🏨 Aniq mehmonxona tanlaysizmi? (ixtiyoriy)\n\nRoyxatdan tanlang yoki «Farqi yoq» bosing — operatorimiz eng mos variantni taklif qiladi.",
+        "hotel_any": "✔️ Farqi yoq / operator tavsiya qilsin",
+        "a_hotel_sel": "Tanlangan mehmonxona",
         "done": (
-            "✅ *So'rovingiz qabul qilindi!*\n\n"
-            "HIJAZ jamoasi tez orada siz bilan bog'lanadi, ichaAlloh.\n"
-            "E'tiboringiz uchun rahmat! 🕋"
+            "✅ So'rovingiz qabul qilindi!\n\nRahmat! HIJAZ jamoasi tez orada siz bilan bog'lanadi va barcha savollaringizga javob beradi.\n\n💰 Narx va to'liq ma'lumotni operatorimiz shaxsan aytadi.\n⏱ Odatda 1 soat ichida javob beramiz (ish vaqtida).\n\nSabringiz uchun rahmat! 🕋"
         ),
         "contact_txt": "📞 HIJAZ bilan bog'lanish\n\nQuyidagi tugmalar orqali biz bilan tez bog'laning. Savollaringizga jamoamiz javob beradi.",
         "btn_call": "📞 Qo'ng'iroq",
@@ -158,10 +168,20 @@ TR = {
         "phone": "📱 Ваш номер телефона? (нажмите кнопку или напишите)",
         "phone_btn": "📱 Отправить номер",
         "name": "Ваше имя?",
+                "confirm_title": "📋 Проверьте вашу заявку:",
+        "confirm_ask": "Всё верно?",
+        "btn_confirm": "✅ Подтвердить",
+        "btn_cancel": "❌ Отменить",
+        "cancelled": "❌ Заявка отменена. Используйте меню, чтобы начать заново.",
+        "c_service": "Услуга",
+        "c_hotel": "Отель",
+        "c_transfer": "Трансфер",
+        "req_no": "Номер заявки",
+        "hotel_q": "🏨 Выбрать конкретный отель? (необязательно)\n\nВыберите из списка или нажмите «Не важно».",
+        "hotel_any": "✔️ Не важно / оператор предложит",
+        "a_hotel_sel": "Выбранный отель",
         "done": (
-            "✅ *Ваша заявка принята!*\n\n"
-            "Команда HIJAZ скоро свяжется с вами, инша Аллах.\n"
-            "Спасибо за обращение! 🕋"
+            "✅ Ваша заявка принята!\n\nСпасибо! Команда HIJAZ скоро свяжется с вами и ответит на все вопросы.\n\n💰 Цену и полную информацию сообщит наш оператор лично.\n⏱ Обычно отвечаем в течение 1 часа (в рабочее время).\n\nСпасибо за ожидание! 🕋"
         ),
         "contact_txt": "📞 Связь с HIJAZ\n\nСвяжитесь с нами через кнопки ниже. Наша команда ответит на ваши вопросы.",
         "btn_call": "📞 Позвонить",
@@ -255,10 +275,20 @@ TR = {
         "phone": "📱 Your phone number? (press button or type)",
         "phone_btn": "📱 Send number",
         "name": "Your name?",
+                "confirm_title": "📋 Please review your request:",
+        "confirm_ask": "Is everything correct?",
+        "btn_confirm": "✅ Confirm",
+        "btn_cancel": "❌ Cancel",
+        "cancelled": "❌ Request cancelled. Use the menu to start again.",
+        "c_service": "Service",
+        "c_hotel": "Hotel",
+        "c_transfer": "Transfer",
+        "req_no": "Request number",
+        "hotel_q": "🏨 Choose a specific hotel? (optional)\n\nPick from the list or tap «No preference».",
+        "hotel_any": "✔️ No preference / operator suggests",
+        "a_hotel_sel": "Selected hotel",
         "done": (
-            "✅ *Your request has been received!*\n\n"
-            "The HIJAZ team will contact you soon, in sha Allah.\n"
-            "Thank you! 🕋"
+            "✅ Your request has been received!\n\nThank you! The HIJAZ team will contact you soon and answer all your questions.\n\n💰 The price and full details will be shared by our operator personally.\n⏱ We usually reply within 1 hour (during working hours).\n\nThank you for your patience! 🕋"
         ),
         "contact_txt": "📞 Contact HIJAZ\n\nReach us quickly via the buttons below. Our team will answer your questions.",
         "btn_call": "📞 Call",
@@ -351,10 +381,20 @@ TR = {
         "phone": "📱 رقم هاتفك؟ (اضغط الزر أو اكتب)",
         "phone_btn": "📱 إرسال الرقم",
         "name": "اسمك؟",
+                "confirm_title": "📋 يرجى مراجعة طلبك:",
+        "confirm_ask": "هل كل شيء صحيح؟",
+        "btn_confirm": "✅ تأكيد",
+        "btn_cancel": "❌ إلغاء",
+        "cancelled": "❌ تم إلغاء الطلب. استخدم القائمة للبدء من جديد.",
+        "c_service": "الخدمة",
+        "c_hotel": "فندق",
+        "c_transfer": "نقل",
+        "req_no": "رقم الطلب",
+        "hotel_q": "🏨 هل تريد اختيار فندق محدد؟ (اختياري)\n\nاختر من القائمة أو اضغط «لا يهم».",
+        "hotel_any": "✔️ لا يهم / دع الموظف يقترح",
+        "a_hotel_sel": "الفندق المختار",
         "done": (
-            "✅ *تم استلام طلبك!*\n\n"
-            "سيتواصل معك فريق حجاز قريباً إن شاء الله.\n"
-            "شكراً لك! 🕋"
+            "✅ تم استلام طلبك!\n\nشكراً لك! سيتواصل معك فريق حجاز قريباً ويجيب على جميع أسئلتك.\n\n💰 سيخبرك موظفنا بالسعر والتفاصيل الكاملة شخصياً.\n⏱ نرد عادة خلال ساعة واحدة (في ساعات العمل).\n\nشكراً لصبرك! 🕋"
         ),
         "contact_txt": "📞 تواصل مع حجاز\n\nتواصل معنا عبر الأزرار أدناه. سيجيب فريقنا على أسئلتك.",
         "btn_call": "📞 اتصل",
@@ -448,10 +488,20 @@ TR = {
         "phone": "📱 Telefon numaranız? (butona basın veya yazın)",
         "phone_btn": "📱 Numarayı gönder",
         "name": "Adınız?",
+                "confirm_title": "📋 Talebinizi kontrol edin:",
+        "confirm_ask": "Her şey doğru mu?",
+        "btn_confirm": "✅ Onayla",
+        "btn_cancel": "❌ İptal",
+        "cancelled": "❌ Talep iptal edildi. Yeniden başlamak için menüyü kullanın.",
+        "c_service": "Hizmet",
+        "c_hotel": "Otel",
+        "c_transfer": "Transfer",
+        "req_no": "Talep numarası",
+        "hotel_q": "🏨 Belirli bir otel seçmek ister misiniz? (isteğe bağlı)\n\nListeden seçin veya «Fark etmez» e basın.",
+        "hotel_any": "✔️ Fark etmez / operatör önersin",
+        "a_hotel_sel": "Seçilen otel",
         "done": (
-            "✅ *Talebiniz alındı!*\n\n"
-            "HIJAZ ekibi en kısa sürede sizinle iletişime geçecek, inşallah.\n"
-            "Teşekkürler! 🕋"
+            "✅ Talebiniz alındı!\n\nTeşekkürler! HIJAZ ekibi yakında sizinle iletişime geçecek ve tüm sorularınızı yanıtlayacak.\n\n💰 Fiyat ve tüm detayları operatörümüz bizzat bildirecek.\n⏱ Genellikle 1 saat içinde yanıt veriyoruz (çalışma saatlerinde).\n\nSabrınız için teşekkürler! 🕋"
         ),
         "contact_txt": "📞 HIJAZ ile iletişim\n\nAşağıdaki butonlarla bize ulaşın. Ekibimiz sorularınızı yanıtlayacak.",
         "btn_call": "📞 Ara",
