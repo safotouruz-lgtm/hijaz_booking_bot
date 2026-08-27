@@ -34,9 +34,31 @@ REQUESTS_FILE = "requests.json"                          # so'rovlar tarixi
 
 # --- Aloqa ma'lumotlari (o'zingiznikini yozing) ---
 CONTACT_PHONE = "+998911719900"              # qo'ng'iroq uchun (bo'shliqsiz)
-CONTACT_TELEGRAM = "safotour1"           # @siz  (@ belgisisiz)
+CONTACT_TELEGRAM = "hijaz_booking"           # @siz  (@ belgisisiz)
 CONTACT_WHATSAPP = "998911719900"            # WhatsApp raqami (+ va bo'shliqsiz)
-CONTACT_INSTAGRAM = "hijazsaudi"          # instagram username (@ belgisisiz)
+CONTACT_INSTAGRAM = "hijaz_booking"          # instagram username (@ belgisisiz)
+
+# --- Mashhur mehmonxonalar (Haram-ga yaqin). Xohlagancha tahrirlang ---
+HOTELS = {
+    "makkah": [
+        "Fairmont Makkah Clock Royal Tower", "Raffles Makkah Palace",
+        "Swissotel Al Maqam Makkah", "Pullman ZamZam Makkah",
+        "Conrad Makkah", "Jabal Omar Hyatt Regency",
+        "Address Jabal Omar Makkah", "Hilton Suites Makkah",
+        "InterContinental Dar Al Tawhid", "Movenpick Hajar Tower Makkah",
+        "Anjum Makkah Hotel", "DoubleTree by Hilton Jabal Omar",
+        "Elaf Kinda Makkah", "Al Ghufran Safwah Tower",
+    ],
+    "madinah": [
+        "Anwar Al Madinah Movenpick", "Pullman ZamZam Madinah",
+        "The Oberoi Madinah", "Shaza Al Madinah",
+        "Dar Al Iman InterContinental", "Hilton Madinah",
+        "Madinah Marriott Hotel", "Dar Al Taqwa Hotel",
+        "Taiba Front Hotel", "Dallah Taibah Hotel",
+        "Crowne Plaza Madinah", "Saja Al Madinah Hotel",
+        "Coral Al Madinah", "Al Muna Kareem Hotel",
+    ],
+}
 
 
 logging.basicConfig(level=logging.INFO)
@@ -56,6 +78,7 @@ class Form(StatesGroup):
     # mehmonxona
     city = State()
     stars = State()
+    hotel = State()
     meal = State()
     guests = State()
     room_count = State()    # xonalar soni
@@ -76,6 +99,7 @@ class Form(StatesGroup):
     # umumiy
     phone = State()
     name = State()
+    confirm = State()
 
 
 # ==================== KLAVIATURALAR ====================
@@ -110,6 +134,27 @@ def kb_stars(lang):
     rows = [[InlineKeyboardButton(text=f"{n}⭐", callback_data=f"stars:{n}") for n in (3, 4, 5)]]
     rows.append([InlineKeyboardButton(text=t(lang, "stars_any"), callback_data="stars:any")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def kb_hotel(lang, city):
+    """Mehmonxona tanlash klaviaturasi (shahar bo'yicha + Farqi yo'q)."""
+    rows = [[InlineKeyboardButton(text=t(lang, "hotel_any"), callback_data="hotel:any")]]
+    # index bo'yicha ishlaymiz (nomlar uzun, callback_data cheklangan)
+    if city == "both":
+        names = HOTELS["makkah"] + HOTELS["madinah"]
+    else:
+        names = HOTELS.get(city, [])
+    for i, name in enumerate(names):
+        rows.append([InlineKeyboardButton(text=name, callback_data=f"hotel:{i}")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+def hotel_name_by_index(city, idx):
+    if city == "both":
+        names = HOTELS["makkah"] + HOTELS["madinah"]
+    else:
+        names = HOTELS.get(city, [])
+    if 0 <= idx < len(names):
+        return names[idx]
+    return ""
 
 def kb_meal(lang):
     return InlineKeyboardMarkup(inline_keyboard=[
@@ -148,6 +193,16 @@ def kb_phone(lang):
 
 
 # ==================== /START ====================
+@dp.message(Command("bekor", "cancel"))
+async def cmd_cancel(message: Message, state: FSMContext):
+    lang = UL(message.from_user.id)
+    cur = await state.get_state()
+    await state.clear()
+    if cur is not None:
+        await message.answer(t(lang, "cancelled"), reply_markup=kb_menu(lang))
+    else:
+        await message.answer(t(lang, "welcome"), reply_markup=kb_menu(lang))
+
 @dp.message(Command("start"))
 async def cmd_start(message: Message, state: FSMContext):
     await state.clear()
@@ -221,6 +276,23 @@ async def choose_city(cb: CallbackQuery, state: FSMContext):
 async def choose_stars(cb: CallbackQuery, state: FSMContext):
     lang = UL(cb.from_user.id)
     await state.update_data(stars=cb.data.split(":")[1])
+    data = await state.get_data()
+    city = data.get("city", "")
+    # aniq mehmonxona so'raymiz (ixtiyoriy)
+    await state.set_state(Form.hotel)
+    await cb.message.answer(t(lang, "hotel_q"), reply_markup=kb_hotel(lang, city))
+    await cb.answer()
+
+@dp.callback_query(Form.hotel, F.data.startswith("hotel:"))
+async def choose_hotel(cb: CallbackQuery, state: FSMContext):
+    lang = UL(cb.from_user.id)
+    val = cb.data.split(":")[1]
+    data = await state.get_data()
+    if val == "any":
+        await state.update_data(hotel="")
+    else:
+        name = hotel_name_by_index(data.get("city", ""), int(val))
+        await state.update_data(hotel=name)
     await state.set_state(Form.meal)
     await cb.message.answer(t(lang, "meal"), reply_markup=kb_meal(lang))
     await cb.answer()
@@ -393,11 +465,34 @@ async def input_name(message: Message, state: FSMContext):
     lang = UL(message.from_user.id)
     await state.update_data(name=message.text.strip())
     data = await state.get_data()
+    # tasdiqlash ekranini ko'rsatamiz (yubormasdan oldin)
+    await state.set_state(Form.confirm)
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=t(lang, "btn_confirm"), callback_data="confirm_send")],
+        [InlineKeyboardButton(text=t(lang, "btn_cancel"), callback_data="confirm_cancel")],
+    ])
+    await message.answer(build_customer_summary(data, lang), reply_markup=kb, parse_mode=None)
+
+@dp.callback_query(Form.confirm, F.data == "confirm_send")
+async def confirm_send(cb: CallbackQuery, state: FSMContext):
+    lang = UL(cb.from_user.id)
+    data = await state.get_data()
     await state.clear()
-    # so'rovni yuborish
-    await send_to_admin(message, data, lang)
-    await save_request(message, data, lang)
-    await message.answer(t(lang, "done"), reply_markup=kb_menu(lang))
+    # so'rov raqamini olamiz (admin va mijozga bir xil raqam)
+    req_no = get_next_request_no()
+    await send_to_admin(cb.message, data, lang, user=cb.from_user, req_no=req_no)
+    await save_request_user(cb.from_user, data, lang)
+    # mijozga javob + so'rov raqami
+    done_text = t(lang, "done") + f"\n\n🎫 {t(lang, 'req_no')}: #{req_no:03d}"
+    await cb.message.answer(done_text, reply_markup=kb_menu(lang), parse_mode=None)
+    await cb.answer()
+
+@dp.callback_query(Form.confirm, F.data == "confirm_cancel")
+async def confirm_cancel(cb: CallbackQuery, state: FSMContext):
+    lang = UL(cb.from_user.id)
+    await state.clear()
+    await cb.message.answer(t(lang, "cancelled"), reply_markup=kb_menu(lang))
+    await cb.answer()
 
 
 # ==================== ADMIN GURUHIGA YUBORISH ====================
@@ -413,16 +508,61 @@ def city_label(lang, code):
     return {"makkah": t(lang, "city_makkah"), "madinah": t(lang, "city_madinah"),
             "both": t(lang, "city_both")}.get(code, code)
 
-def build_admin_text(user, data, lang):
+def build_customer_summary(data, lang):
+    """Mijoz uchun so'rov xulosasi (uning tilida, tasdiqlash uchun)."""
+    svc = data.get("service")
+    type_str = {"hotel": t(lang,"c_hotel"), "transfer": t(lang,"c_transfer"),
+                "both": f"{t(lang,'c_hotel')} + {t(lang,'c_transfer')}"}.get(svc, svc)
+    lines = [t(lang,"confirm_title"), "", f"{t(lang,'c_service')}: {type_str}"]
+    if svc in ("hotel", "both"):
+        lines.append(f"{t(lang,'a_city')}: {city_label(lang, data.get('city',''))}")
+        stars = data.get("stars", "")
+        lines.append(f"{t(lang,'a_stars')}: {stars if stars=='any' else stars+'⭐'}")
+        if data.get("hotel"):
+            lines.append(f"{t(lang,'a_hotel_sel')}: {data.get('hotel')}")
+        lines.append(f"{t(lang,'a_meal')}: {meal_label(lang, data.get('meal',''))}")
+        lines.append(f"{t(lang,'a_guests')}: {data.get('guests','')}")
+        lines.append(f"{t(lang,'a_rooms')}: {data.get('room_count','')}")
+        rt = data.get('room_type', '')
+        rt_names = {'single': t(lang,'rt_single'), 'double': t(lang,'rt_double'),
+                    'triple': t(lang,'rt_triple'), 'quad': t(lang,'rt_quad'),
+                    'mixed': t(lang,'rt_mixed')}
+        lines.append(f"{t(lang,'a_roomtype')}: {rt_names.get(rt, rt)}")
+        if data.get("city") == "both":
+            lines.append(f"{t(lang,'a_mk_dates')}: {data.get('mk_checkin','')} — {data.get('mk_checkout','')}")
+            lines.append(f"{t(lang,'a_md_dates')}: {data.get('md_checkin','')} — {data.get('md_checkout','')}")
+        else:
+            lines.append(f"{t(lang,'a_dates')}: {data.get('checkin','')} — {data.get('checkout','')}")
+        lines.append(f"{t(lang,'a_budget')}: {data.get('budget','—')}")
+    if svc in ("transfer", "both"):
+        lines.append(f"{t(lang,'a_trtype')}: {trtype_label(lang, data.get('tr_type',''))}")
+        lines.append(f"{t(lang,'a_route')}: {data.get('tr_route','')}")
+        lines.append(f"{t(lang,'a_dates')}: {data.get('tr_date','')}")
+        lines.append(f"{t(lang,'a_pax')}: {data.get('tr_pax','')}")
+    lines.append(f"{t(lang,'a_name')}: {data.get('name','')}")
+    lines.append(f"{t(lang,'a_phone')}: {data.get('phone','')}")
+    lines.append("")
+    lines.append(t(lang,"confirm_ask"))
+    return "\n".join(lines)
+
+
+def build_admin_text(user, data, lang, req_no=None):
     svc = data.get("service")
     type_str = {"hotel": t("uz","a_hotel"), "transfer": t("uz","a_transfer"),
                 "both": f"{t('uz','a_hotel')} + {t('uz','a_transfer')}"}.get(svc, svc)
-    lines = [f"{t('uz','a_new')}", f"{t('uz','a_type')}: {type_str}"]
+    # sarlavha: yangi so'rov + raqam + vaqt
+    header = t('uz','a_new')
+    if req_no:
+        header = f"{t('uz','a_new')}  #{req_no:03d}"
+    now = datetime.now().strftime("%d.%m.%Y  %H:%M")
+    lines = [header, f"🕐 {now}", "", f"{t('uz','a_type')}: {type_str}"]
     # mehmonxona qismi
     if svc in ("hotel", "both"):
         lines.append(f"{t('uz','a_city')}: {city_label('uz', data.get('city',''))}")
         stars = data.get("stars", "")
         lines.append(f"{t('uz','a_stars')}: {stars if stars=='any' else stars+'⭐'}")
+        if data.get("hotel"):
+            lines.append(f"{t('uz','a_hotel_sel')}: {data.get('hotel')}")
         lines.append(f"{t('uz','a_meal')}: {meal_label('uz', data.get('meal',''))}")
         lines.append(f"{t('uz','a_guests')}: {data.get('guests','')}")
         lines.append(f"{t('uz','a_rooms')}: {data.get('room_count','')}")
@@ -450,16 +590,47 @@ def build_admin_text(user, data, lang):
     lines.append(f"{t('uz','a_lang')}: {lang.upper()} · {t('uz','a_user')}: {uname}")
     return "\n".join(lines)
 
-async def send_to_admin(message, data, lang):
+async def send_to_admin(message, data, lang, user=None, req_no=None):
     if not ADMIN_GROUP_ID:
         logging.warning("ADMIN_GROUP_ID sozlanmagan!")
         return
-    text = build_admin_text(message.from_user, data, lang)
+    if user is None:
+        user = message.from_user
+    text = build_admin_text(user, data, lang, req_no=req_no)
     try:
         # parse_mode=None -> oddiy matn, maxsus belgilar (* _ [ ]) buzilmaydi
         await bot.send_message(ADMIN_GROUP_ID, text, parse_mode=None)
     except Exception as e:
         logging.error(f"Admin guruhga yuborishda xato: {e}")
+
+def get_next_request_no():
+    """Keyingi so'rov raqamini qaytaradi (mavjud so'rovlar soni + 1)."""
+    try:
+        if os.path.exists(REQUESTS_FILE):
+            with open(REQUESTS_FILE, "r", encoding="utf-8") as f:
+                arr = json.load(f)
+            return len(arr) + 1
+    except Exception:
+        pass
+    return 1
+
+async def save_request_user(user, data, lang):
+    """So'rovni faylga saqlaymiz (user obyekti bilan)."""
+    rec = {
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "user": user.username or user.full_name,
+        "lang": lang, **data,
+    }
+    try:
+        arr = []
+        if os.path.exists(REQUESTS_FILE):
+            with open(REQUESTS_FILE, "r", encoding="utf-8") as f:
+                arr = json.load(f)
+        arr.append(rec)
+        with open(REQUESTS_FILE, "w", encoding="utf-8") as f:
+            json.dump(arr, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.error(f"Saqlashda xato: {e}")
 
 async def save_request(message, data, lang):
     """So'rovlarni faylga saqlaymiz (tarix uchun)."""
