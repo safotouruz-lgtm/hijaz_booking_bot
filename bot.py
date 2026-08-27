@@ -306,8 +306,8 @@ async def choose_service(cb: CallbackQuery, state: FSMContext):
         await state.set_state(Form.city)
         await cb.message.answer(t(lang, "choose_city"), reply_markup=kb_city(lang))
     else:  # faqat transfer
-        await state.set_state(Form.tr_type)
-        await cb.message.answer(t(lang, "transfer_type"), reply_markup=kb_transfer_type(lang))
+        await state.set_state(Form.tr_route_choose)
+        await cb.message.answer(t(lang, "transfer_route"), reply_markup=kb_route(lang))
     await cb.answer()
 
 
@@ -450,22 +450,13 @@ async def goto_transfer_or_phone(message, state, uid=None):
     lang = UL(uid)
     data = await state.get_data()
     if data.get("service") == "both":
-        await state.set_state(Form.tr_type)
-        await message.answer(t(lang, "transfer_type"), reply_markup=kb_transfer_type(lang))
+        await state.set_state(Form.tr_route_choose)
+        await message.answer(t(lang, "transfer_route"), reply_markup=kb_route(lang))
     else:
         await ask_phone(message, state, lang)
 
 
 # ==================== TRANSFER OQIMI ====================
-@dp.callback_query(Form.tr_type, F.data.startswith("trt:"))
-async def choose_tr_type(cb: CallbackQuery, state: FSMContext):
-    lang = UL(cb.from_user.id)
-    await state.update_data(tr_type=cb.data.split(":")[1])
-    # yo'nalishni tugmalardan tanlaymiz (yoki Boshqa)
-    await state.set_state(Form.tr_route_choose)
-    await cb.message.answer(t(lang, "transfer_route"), reply_markup=kb_route(lang))
-    await cb.answer()
-
 @dp.callback_query(Form.tr_route_choose, F.data.startswith("route:"))
 async def choose_route(cb: CallbackQuery, state: FSMContext):
     lang = UL(cb.from_user.id)
@@ -611,7 +602,6 @@ def build_customer_summary(data, lang):
             lines.append(f"{t(lang,'a_dates')}: {data.get('checkin','')} — {data.get('checkout','')}")
         lines.append(f"{t(lang,'a_budget')}: {data.get('budget','—')}")
     if svc in ("transfer", "both"):
-        lines.append(f"{t(lang,'a_trtype')}: {trtype_label(lang, data.get('tr_type',''))}")
         lines.append(f"{t(lang,'a_route')}: {data.get('tr_route','')}")
         lines.append(f"{t(lang,'a_dates')}: {data.get('tr_date','')}")
         lines.append(f"{t(lang,'a_pax')}: {data.get('tr_pax','')}")
@@ -657,7 +647,6 @@ def build_admin_text(user, data, lang, req_no=None):
         lines.append(f"{t('uz','a_budget')}: {data.get('budget','—')}")
     # transfer qismi
     if svc in ("transfer", "both"):
-        lines.append(f"{t('uz','a_trtype')}: {trtype_label('uz', data.get('tr_type',''))}")
         lines.append(f"{t('uz','a_route')}: {data.get('tr_route','')}")
         lines.append(f"{t('uz','a_dates')}: {data.get('tr_date','')}")
         lines.append(f"{t('uz','a_pax')}: {data.get('tr_pax','')}")
